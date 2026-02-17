@@ -34,20 +34,12 @@ void Parse_input(struct ShellInput *input) {
 	}
 }
 
-bool Check_Builtin(char* string) {
-	for (int i = 0; builtins[i]; i++) {
-		if (strcmp(string, builtins[i]) == 0) {
-			return true;
-		}
-	}
-	return false;
-}
-
 int main(int argc, char* argv[]) {
+	struct ShellInput *input = malloc(sizeof(struct ShellInput) + cap);
+	char const* path = getenv("PATH");
 
 	// Flush after every printf
 	setbuf(stdout, NULL);
-	struct ShellInput *input = malloc(sizeof(struct ShellInput) + cap);
 
 	while (true) {
 		printf("$ ");
@@ -66,6 +58,8 @@ int main(int argc, char* argv[]) {
 			HandleBuiltin(input);
 			continue;
 		}
+
+
 
 		/* Returning Null input Error */
 		printf("%s: command not found\n", input->cmd);

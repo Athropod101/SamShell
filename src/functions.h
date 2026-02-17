@@ -13,6 +13,15 @@ typedef struct ShellInput {
 
 extern const char* builtins[];
 
+bool Check_Builtin(char* string) {
+	for (int i = 0; builtins[i]; i++) {
+		if (strcmp(string, builtins[i]) == 0) {
+			return true;
+		}
+	}
+	return false;
+}
+
 void HandleBuiltin(struct ShellInput *input) {
 
 	/* echo builtin */
@@ -24,15 +33,12 @@ void HandleBuiltin(struct ShellInput *input) {
 
 	/* type builtin */
 	else if (strcmp(input->cmd, "type") == 0) {
-		bool isBuiltin = false;
-		for (int i = 0; builtins[i]; i++) {
-			if (strcmp(input->prompt, builtins[i]) == 0) {
-				printf("%s is a shell builtin\n", input->prompt);
-				isBuiltin = true;
-				break;
-			}
+		bool isBuiltin = Check_Builtin(input->prompt);
+		
+		if (isBuiltin) {
+			printf("%s is a shell builtin\n", input->prompt);
 		}
-		if (!isBuiltin) {
+		else {
 			printf("%s: not found\n", input->prompt);
 		}
 	}
