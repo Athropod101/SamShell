@@ -1,17 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "functions.h"
 
 const int cap = 1024;
-
-struct ShellInput {
-	char* cmd;
-	char* prompt;
-	size_t cmdEnd;
-	bool hasPrompt;
-	bool isBuiltin;
-	char full[];
-};
 
 const char* builtins[] = {"exit", "echo", "type", NULL};
 
@@ -42,6 +34,15 @@ void Parse_input(struct ShellInput *input) {
 	}
 }
 
+bool Check_Builtin(char* string) {
+	for (int i = 0; builtins[i]; i++) {
+		if (strcmp(string, builtins[i]) == 0) {
+			return true;
+		}
+	}
+	return false;
+}
+
 int main(int argc, char* argv[]) {
 
 	// Flush after every printf
@@ -55,40 +56,23 @@ int main(int argc, char* argv[]) {
 		fgets(input->full, cap, stdin);
 		Parse_input(input);
 
-		/* exit builtin */
-		if (strcmp(input->cmd, "exit") == 0) {
-			break;
-		}
-
-		/* echo builtin */
-		else if (strcmp(input->cmd, "echo") == 0) {
-			if (input->hasPrompt) {
-				printf("%s\n", input->prompt);
+		/* Determine if command is builtin */
+		input->isBuiltin = Check_Builtin(input->cmd);
+		if (input->isBuiltin) {
+			/* exit builtin must be inlined to allow break */
+			if (strcmp(input->cmd, "exit") == 0) {
+				break;
 			}
-		}
-
-		/* type builtin */
-		else if (strcmp(input->cmd, "type") == 0) {
-			bool isBuiltin = false;
-			for (int i = 0; builtins[i]; i++) {
-				if (strcmp(input->prompt, builtins[i]) == 0) {
-					printf("%s is a shell builtin\n", input->prompt);
-					isBuiltin = true;
-					break;
-				}
-			}
-			if (!isBuiltin) {
-				printf("%s: not found\n", input->prompt);
-			}
+			HandleBuiltin(input);
+			continue;
 		}
 
 		/* Returning Null input Error */
-		else {
 		printf("%s: command not found\n", input->cmd);
-		}
 	}
 
 	free(input);
+	input = NULL;
 	return 0;
 }
 
