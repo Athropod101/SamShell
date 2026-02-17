@@ -2,17 +2,20 @@
 #include <stdlib.h>
 #include <string.h>
 
-int cap = 1024;
+const int cap = 1024;
 
 struct ShellInput {
 	char* cmd;
 	char* prompt;
-	bool hasPrompt;
 	size_t cmdEnd;
+	bool hasPrompt;
+	bool isBuiltin;
 	char full[];
 };
 
-char* builtins[] = {"exit", "echo", "type", NULL};
+const char* builtins[] = {"exit", "echo", "type", NULL};
+
+//char* path = strtok(getenv("PATH"), ":");
 
 void FetchCMD(struct ShellInput *input) {
 	input->cmdEnd = strcspn(input->full, " ");
@@ -67,7 +70,7 @@ int main(int argc, char* argv[]) {
 		/* type builtin */
 		else if (strcmp(input->cmd, "type") == 0) {
 			bool isBuiltin = false;
-			for (int i = 0; builtins[i] != NULL; i++) {
+			for (int i = 0; builtins[i]; i++) {
 				if (strcmp(input->prompt, builtins[i]) == 0) {
 					printf("%s is a shell builtin\n", input->prompt);
 					isBuiltin = true;
