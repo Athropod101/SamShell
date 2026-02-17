@@ -41,7 +41,7 @@ int main(int argc, char* argv[]) {
 	// Flush after every printf
 	setbuf(stdout, NULL);
 
-	while (true) {
+	do {
 		printf("$ ");
 
 		/* Get the user's input */
@@ -51,10 +51,6 @@ int main(int argc, char* argv[]) {
 		/* Determine if command is builtin */
 		input->isBuiltin = Check_Builtin(input->cmd);
 		if (input->isBuiltin) {
-			/* exit builtin must be inlined to allow break */
-			if (strcmp(input->cmd, "exit") == 0) {
-				break;
-			}
 			HandleBuiltin(input);
 			continue;
 		}
@@ -63,7 +59,7 @@ int main(int argc, char* argv[]) {
 
 		/* Returning Null input Error */
 		printf("%s: command not found\n", input->cmd);
-	}
+	} while (strcmp(input->cmd, "exit") != 0);
 
 	free(input);
 	input = NULL;
