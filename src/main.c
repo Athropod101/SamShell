@@ -5,12 +5,14 @@
 int cap = 1024;
 
 struct ShellInput {
-	char *cmd;
-	char *prompt;
+	char* cmd;
+	char* prompt;
 	bool hasPrompt;
 	size_t cmdEnd;
 	char full[];
 };
+
+char* builtins[] = {"exit", "echo", "type", NULL};
 
 void FetchCMD(struct ShellInput *input) {
 	input->cmdEnd = strcspn(input->full, " ");
@@ -27,6 +29,7 @@ void FetchCMD(struct ShellInput *input) {
 
 void FetchPrompt(struct ShellInput *input) {
 	input->prompt = &input->full[input->cmdEnd + 1];
+	input->prompt[strcspn(input->prompt, "\n")] = '\0';
 }
 
 void Parse_input(struct ShellInput *input) {
@@ -36,7 +39,7 @@ void Parse_input(struct ShellInput *input) {
 	}
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
 
 	// Flush after every printf
 	setbuf(stdout, NULL);
@@ -49,16 +52,33 @@ int main(int argc, char *argv[]) {
 		fgets(input->full, cap, stdin);
 		Parse_input(input);
 
-		/* Building the exit input */
+		/* exit builtin */
 		if (strcmp(input->cmd, "exit") == 0) {
 			break;
 		}
-		/* Building the echo input */
+
+		/* echo builtin */
 		else if (strcmp(input->cmd, "echo") == 0) {
 			if (input->hasPrompt) {
-				printf("%s", input->prompt);
+				printf("%s\n", input->prompt);
 			}
 		}
+
+		/* type builtin */
+		else if (strcmp(input->cmd, "type") == 0) {
+			bool isBuiltin = false;
+			for (int i = 0; builtins[i] != NULL; i++) {
+				if (strcmp(input->prompt, builtins[i]) == 0) {
+					printf("%s is a shell builtin\n", input->prompt);
+					isBuiltin = true;
+					break;
+				}
+			}
+			if (!isBuiltin) {
+				printf("%s: not found\n", input->prompt);
+			}
+		}
+
 		/* Returning Null input Error */
 		else {
 		printf("%s: command not found\n", input->cmd);
