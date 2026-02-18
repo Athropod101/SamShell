@@ -9,31 +9,6 @@ const int cap = 1024;
 
 const char* builtins[] = {"exit", "echo", "type", NULL};
 
-void FetchCMD(struct ShellInput *input) {
-	input->cmdEnd = strcspn(input->full, " ");
-	if (input->cmdEnd == strlen(input->full)) {
-		input->full[input->cmdEnd - 1] = '\0';
-		input->hasPrompt = false;
-	}
-	else {
-		input->full[input->cmdEnd] = '\0';
-		input->hasPrompt = true;
-	}
-	input->cmd = &input->full[0];
-}
-
-void FetchPrompt(struct ShellInput *input) {
-	input->prompt = &input->full[input->cmdEnd + 1];
-	input->prompt[strcspn(input->prompt, "\n")] = '\0';
-}
-
-void Parse_input(struct ShellInput *input) {
-	FetchCMD(input);
-	if (input->hasPrompt) {
-		FetchPrompt(input);
-	}
-}
-
 int main(int argc, char* argv[]) {
 	struct ShellInput *input = malloc(sizeof(struct ShellInput) + cap);
 

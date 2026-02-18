@@ -23,6 +23,32 @@ bool Check_Builtin(char* string) {
 	return false;
 }
 
+void FetchCMD(struct ShellInput *input) {
+	input->cmdEnd = strcspn(input->full, " ");
+	if (input->cmdEnd == strlen(input->full)) {
+		input->full[input->cmdEnd - 1] = '\0';
+		input->hasPrompt = false;
+	}
+	else {
+		input->full[input->cmdEnd] = '\0';
+		input->hasPrompt = true;
+	}
+	input->cmd = &input->full[0];
+}
+
+void FetchPrompt(struct ShellInput *input) {
+	input->prompt = &input->full[input->cmdEnd + 1];
+	input->prompt[strcspn(input->prompt, "\n")] = '\0';
+}
+
+void Parse_input(struct ShellInput *input) {
+	FetchCMD(input);
+	if (input->hasPrompt) {
+		FetchPrompt(input);
+	}
+}
+
+
 void HandleBuiltin(struct ShellInput *input) {
 
 	/* echo builtin */
@@ -67,6 +93,6 @@ void HandleBuiltin(struct ShellInput *input) {
 		}
 		free(pathcopy); pathcopy = NULL;
 
-		printf("%s: not found\n", input->prompt);
+		printf("%s: command not found in PATH.\n", input->prompt);
 	}
 }
