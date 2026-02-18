@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+
 #include "functions.h"
 
 const int cap = 1024;
 
 const char* builtins[] = {"exit", "echo", "type", NULL};
-
-//char* path = strtok(getenv("PATH"), ":");
 
 void FetchCMD(struct ShellInput *input) {
 	input->cmdEnd = strcspn(input->full, " ");
@@ -36,12 +36,12 @@ void Parse_input(struct ShellInput *input) {
 
 int main(int argc, char* argv[]) {
 	struct ShellInput *input = malloc(sizeof(struct ShellInput) + cap);
-	char const* path = getenv("PATH");
 
 	// Flush after every printf
 	setbuf(stdout, NULL);
 
 	do {
+		//printf("Sam@Shell 󱢴  ");
 		printf("$ ");
 
 		/* Get the user's input */
@@ -54,8 +54,6 @@ int main(int argc, char* argv[]) {
 			HandleBuiltin(input);
 			continue;
 		}
-
-
 
 		/* Returning Null input Error */
 		printf("%s: command not found\n", input->cmd);
