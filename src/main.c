@@ -41,8 +41,8 @@ int main(int argc, char* argv[]) {
 	setbuf(stdout, NULL);
 
 	do {
-		//printf("Sam@Shell 󱢴  ");
-		printf("$ ");
+		printf("Sam 🌊 Shell 󱢴  ");
+		//printf("$ ");
 
 		/* Get the user's input */
 		fgets(input->full, cap, stdin);

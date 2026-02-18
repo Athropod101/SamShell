@@ -10,7 +10,7 @@ typedef struct ShellInput {
 	bool hasPrompt;
 	bool isBuiltin;
 	char full[];
-} VoidWarning; // Voids the warning that the struct is useless (it's not).
+} ShellInput;
 
 extern const char* builtins[];
 
