@@ -39,7 +39,7 @@ void Parse_input(ShellInput* input) {
 char* PATHfind(char* program) {
 	// IMPORTANT: Uses unfreed malloc !!!
 
-	char const* PATH = getenv("PATH");
+	extern char const* PATH;
 	char path[strlen(PATH) + 1];
 	strcpy(path, PATH);
 	char* dir = strtok(path, ":");
@@ -94,6 +94,14 @@ void HandleBuiltin(ShellInput* input) {
 			
 		printf("%s: not found\n", input->args[1]);
 	}
+
+	// pwd builtin
+	else if (strcmp(input->cmd, "pwd") == 0) {
+		extern char const* PWD;
+		printf("%s\n", PWD);
+		return;
+	}
+
 }
 
 void Sanitize(ShellInput* input) {

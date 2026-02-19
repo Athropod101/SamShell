@@ -10,19 +10,27 @@
 
 const int cap = 1024;
 
-const char* builtins[] = {"exit", "echo", "type", NULL};
+const char* builtins[] = {"exit", "echo", "type", "pwd", NULL};
+char const* PATH;
+char const* PWD;
 
 ShellInput shellstruct;
 ShellInput* input = &shellstruct;
 
 int main(int argc, char* argv[]) {
-
-	// Flush after every printf
-	setbuf(stdout, NULL);
+	// ShellInput setup
 	input->full = malloc(cap);
 	input->args = calloc(cap / 2, sizeof(char*));
 	input->cmd = NULL;
+
+	// Environment Setup
+	PATH = getenv("PATH");
+	PWD = getenv("PWD");
 	
+
+	// Flush after every printf
+	setbuf(stdout, NULL);
+
 	do {
 		//printf("Sam 🌊 Shell 󱢴  ");
 		printf("$ ");
