@@ -4,61 +4,52 @@
 #include <unistd.h>
 
 typedef struct ShellInput {
+	char* full;
 	char* cmd;
-	char* prompt;
-	size_t cmdEnd;
-	bool hasPrompt;
+	char** args;
+	int argsz;
 	bool isBuiltin;
-	char full[];
 } ShellInput;
 
 extern const char* builtins[];
 
-bool Check_Builtin(char* string) {
+bool Check_Builtin(char* command) {
 	for (int i = 0; builtins[i]; i++) {
-		if (strcmp(string, builtins[i]) == 0) {
+		if (strcmp(command, builtins[i]) == 0) {
 			return true;
 		}
 	}
 	return false;
 }
 
-void FetchCMD(struct ShellInput *input) {
-	input->cmdEnd = strcspn(input->full, " ");
-	if (input->cmdEnd == strlen(input->full)) {
-		input->full[input->cmdEnd - 1] = '\0';
-		input->hasPrompt = false;
-	}
-	else {
-		input->full[input->cmdEnd] = '\0';
-		input->hasPrompt = true;
-	}
-	input->cmd = &input->full[0];
-}
+void Parse_input(ShellInput* input) {
 
-void FetchPrompt(struct ShellInput *input) {
-	input->prompt = &input->full[input->cmdEnd + 1];
-	input->prompt[strcspn(input->prompt, "\n")] = '\0';
-}
-
-void Parse_input(struct ShellInput *input) {
-	FetchCMD(input);
-	if (input->hasPrompt) {
-		FetchPrompt(input);
+	char* token;
+	input->argsz = 0;
+	input->full = strtok(input->full, "\n");
+	token = strtok(input->full, " ");
+	while (token) {
+		input->args[input->argsz] = token;
+		input->argsz ++;
+		token = strtok(NULL, " ");
 	}
+	input->cmd = input->args[0];
+	return;
 }
-
 
 void HandleBuiltin(struct ShellInput *input) {
-
-	/* echo builtin */
+	// echo builtin
 	if (strcmp(input->cmd, "echo") == 0) {
-		if (input->hasPrompt) {
-			printf("%s\n", input->prompt);
+		if (input->argsz == 1) {return;}
+		for (int i = 1; i < input->argsz; i++) {
+			printf("%s ", input->args[i]);
 		}
+		printf("\n");
+		return;
 	}
 
-	/* type builtin */
+	/*
+	// type builtin
 	else if (strcmp(input->cmd, "type") == 0) {
 		if (!input->hasPrompt) {
 			printf("Type prompt not given. Please insert prompt to utilize the type builtin.\n");
@@ -72,7 +63,7 @@ void HandleBuiltin(struct ShellInput *input) {
 			return;
 		}
 
-		/* Search for command in PATH */
+		// Search for command in PATH
 		char const* path = getenv("PATH");
 		char* pathcopy = strdup(path);
 		char* dir = strtok(pathcopy, ":");
@@ -95,4 +86,5 @@ void HandleBuiltin(struct ShellInput *input) {
 
 		printf("%s: command not found in PATH.\n", input->prompt);
 	}
+	*/
 }
