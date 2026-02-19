@@ -23,7 +23,6 @@ bool Check_Builtin(char* command) {
 }
 
 void Parse_input(ShellInput* input) {
-
 	char* token;
 	input->argsz = 0;
 	input->full = strtok(input->full, "\n");
@@ -37,7 +36,28 @@ void Parse_input(ShellInput* input) {
 	return;
 }
 
-void HandleBuiltin(struct ShellInput *input) {
+char* PATHfind(char* program) {
+	// IMPORTANT: Uses unfreed malloc !!!
+
+	char const* PATH = getenv("PATH");
+	char path[strlen(PATH) + 1];
+	strcpy(path, PATH);
+	char* dir = strtok(path, ":");
+	while (dir) {
+		// The +1 is for the added / directory delimiter between dir and program.
+		char program_path[strlen(dir) + strlen(program) + 1];
+		strcpy(program_path, dir);
+		strcat(program_path, "/");
+		strcat(program_path, program);
+		if (access(program_path, X_OK) == 0) {
+			return strdup(program_path);
+		}
+		dir = strtok(NULL, ":");
+	}
+	return NULL;
+}
+
+void HandleBuiltin(ShellInput* input) {
 	// echo builtin
 	if (strcmp(input->cmd, "echo") == 0) {
 		if (input->argsz == 1) {return;}
@@ -48,43 +68,56 @@ void HandleBuiltin(struct ShellInput *input) {
 		return;
 	}
 
-	/*
 	// type builtin
 	else if (strcmp(input->cmd, "type") == 0) {
-		if (!input->hasPrompt) {
-			printf("Type prompt not given. Please insert prompt to utilize the type builtin.\n");
+		if (input->argsz == 1) {
+			printf("Type argument not given. Please insert an argument to utilize the type builtin.\n");
+			return;
+		}
+		else if (input->argsz > 2) {
+			printf("More than 1 argument was given to the type builtin. Please only give 1 argument to type.\n");
 			return;
 		}
 
-		bool isBuiltin = Check_Builtin(input->prompt);
-		
+		bool isBuiltin = Check_Builtin(input->args[1]);
 		if (isBuiltin) {
-			printf("%s is a shell builtin\n", input->prompt);
+			printf("%s is a shell builtin\n", input->args[1]);
 			return;
 		}
 
-		// Search for command in PATH
-		char const* path = getenv("PATH");
-		char* pathcopy = strdup(path);
-		char* dir = strtok(pathcopy, ":");
-		while (dir) {
-			// The +1 is for the added / directory delimiter between dir and cmd.
-			char* cmdpath = malloc(sizeof(*dir) + sizeof(input->prompt) + 1);
-			strcpy(cmdpath, dir);
-			strcat(cmdpath, "/");
-			strcat(cmdpath, input->prompt);
-			if (access(cmdpath, X_OK) == 0) {
-				printf("%s is %s\n", input->prompt, cmdpath);
-				free(pathcopy); pathcopy = NULL;
-				free(cmdpath); cmdpath = NULL;
-				return;
-			}
-			dir = strtok(NULL, ":");
-			free(cmdpath); cmdpath = NULL;
+		char* program_path = PATHfind(input->args[1]);
+		if (program_path) {
+			printf("%s is %s\n", input->args[1], program_path);
+			free(program_path);
+			return;
 		}
-		free(pathcopy); pathcopy = NULL;
-
-		printf("%s: command not found in PATH.\n", input->prompt);
+			
+		printf("%s: not found\n", input->args[1]);
 	}
-	*/
+}
+
+void Sanitize(ShellInput* input) {
+	for (int i = 0; i < input->argsz; i++) {
+		input->args[i] = NULL;
+	}
+}
+
+void RunProgram(ShellInput* input) {
+	pid_t PID = fork();
+	// if (PID < 0) {
+	// 	perror("fork");
+	// 	continue;
+	// }
+	// Don't need this error handling for now but will leave commented if needed later.
+	if (PID == 0) {
+		execvp(input->cmd, (input->args));
+		if (errno == ENOENT) {
+			printf("%s: command not found\n", input->cmd);
+			exit(ENOENT);
+		}
+		exit(1);
+	}
+	else {
+		wait(NULL);
+	}
 }

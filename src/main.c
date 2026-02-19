@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #include "functions.h"
 
@@ -21,8 +24,8 @@ int main(int argc, char* argv[]) {
 	input->cmd = NULL;
 	
 	do {
-		printf("Sam 🌊 Shell 󱢴  ");
-		//printf("$ ");
+		//printf("Sam 🌊 Shell 󱢴  ");
+		printf("$ ");
 
 		// Get the user's input
 		fgets(input->full, cap, stdin);
@@ -33,11 +36,13 @@ int main(int argc, char* argv[]) {
 		input->isBuiltin = Check_Builtin(input->cmd);
 		if (input->isBuiltin) {
 			HandleBuiltin(input);
+			Sanitize(input);
 			continue;
 		}
 
-		// Returning Null input Error
-		printf("%s: command not found\n", input->cmd);
+		RunProgram(input);
+		Sanitize(input);
+
 	} while (input->cmd == NULL || strcmp(input->cmd, "exit") != 0);
 	free(input->full); input->full = NULL;
 	free(input->args); input->args= NULL;
