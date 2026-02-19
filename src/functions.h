@@ -3,6 +3,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "builtins/cd.h"
+
 typedef struct ShellInput {
 	char* full;
 	char* cmd;
@@ -39,7 +41,7 @@ void Parse_input(ShellInput* input) {
 char* PATHfind(char* program) {
 	// IMPORTANT: Uses unfreed malloc !!!
 
-	extern char const* PATH;
+	extern char* PATH;
 	char path[strlen(PATH) + 1];
 	strcpy(path, PATH);
 	char* dir = strtok(path, ":");
@@ -97,8 +99,13 @@ void HandleBuiltin(ShellInput* input) {
 
 	// pwd builtin
 	else if (strcmp(input->cmd, "pwd") == 0) {
-		extern char const* PWD;
-		printf("%s\n", PWD);
+		printf("%s\n", getenv("PWD"));
+		return;
+	}
+
+	// cd builtin
+	else if (strcmp(input->cmd, "cd") == 0) {
+		cd(input->args[1]);
 		return;
 	}
 

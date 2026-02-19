@@ -10,9 +10,8 @@
 
 const int cap = 1024;
 
-const char* builtins[] = {"exit", "echo", "type", "pwd", NULL};
-char const* PATH;
-char const* PWD;
+const char* builtins[] = {"exit", "echo", "type", "pwd", "cd", NULL};
+char* PATH;
 
 ShellInput shellstruct;
 ShellInput* input = &shellstruct;
@@ -25,15 +24,16 @@ int main(int argc, char* argv[]) {
 
 	// Environment Setup
 	PATH = getenv("PATH");
-	PWD = getenv("PWD");
 	
 
 	// Flush after every printf
 	setbuf(stdout, NULL);
 
 	do {
+		errno = 0;
 		//printf("Sam 🌊 Shell 󱢴  ");
 		printf("$ ");
+		//printf("%s", PS1);
 
 		// Get the user's input
 		fgets(input->full, cap, stdin);
