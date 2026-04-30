@@ -53,3 +53,7 @@ dkms.conf
 
 build
 vcpkg_installed
+CMakeCache.txt
+cmake_install.cmake
+vcpkg-configuration.json
+CMakeFiles
