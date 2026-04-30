@@ -31,9 +31,7 @@ int main(int argc, char* argv[]) {
 
 	do {
 		errno = 0;
-		//printf("Sam 🌊 Shell 󱢴  ");
-		printf("$ ");
-		//printf("%s", PS1);
+		printf("Sam 🌊 Shell 󱢴  ");
 
 		// Get the user's input
 		fgets(input->full, cap, stdin);
