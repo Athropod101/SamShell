@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
 
 	do {
 		errno = 0;
-		printf("Sam🌊Shell🐳%s 🐬  ", getenv("PWD"));
+		printf("Sam🌊Shell🐳%s 🐬 ", getenv("PWD"));
 
 
 		// Get the user's input
